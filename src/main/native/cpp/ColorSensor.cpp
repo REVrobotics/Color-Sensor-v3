@@ -1,84 +1,118 @@
+/*
+ * Copyright (c) 2019 REV Robotics
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of REV Robotics nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include "rev/ColorSensor.h"
-#include <iostream>
+#include "frc/DriverStation.h"
 
 using namespace rev;
 
-ColorSensor::ColorSensor(frc::I2C::Port port, int deviceAddress) 
-    : m_i2c(port, deviceAddress) {
+ColorSensor::ColorSensor(frc::I2C::Port port) 
+    : m_i2c(port, kAddress) {
 
-    if(!CheckID())
+    if(!CheckDeviceID())
         return;
 
-    m_i2c.Write(kMainCtrlRegister, 
-                kRGBMode | kLightSensorEnable | kProximitySensorEnable);
-
-    m_i2c.Write(kProximitySensorPulsesRegister, 1);
-    m_i2c.Write(kProximitySensorRateRegister, kProxRes11bit | kProxRate100ms);
-    // TODO: register HAL
+    InitializeDevice();
 }
 
-bool ColorSensor::CheckID() {
+bool ColorSensor::CheckDeviceID() {
     uint8_t partID = 0;
     if(m_i2c.Read(kPartIDRegister, 1, &partID)) {
-        std::cerr << "Nothing read for part id!\n";
+        frc::DriverStation::ReportError("Could not find REV color sensor");
         return false;
     }
 
     if(partID != kPartID) {
-        std::cerr << "Part ID does not match expected!\n";
+        frc::DriverStation::ReportError("Unknown device found with same I2C addres as REV color sensor");
         return false;
     }
 
     return true;
 }
 
-uint16_t ColorSensor::GetProximity() {
-    uint8_t prox[2];
+void ColorSensor::InitializeDevice() {
+    m_i2c.Write(kMainCtrlRegister, 
+        kRGBMode | kLightSensorEnable | kProximitySensorEnable);
 
-    if(m_i2c.Read(kProximityDataRegister, 2, prox))
-        return 0;
+    m_i2c.Write(kProximitySensorRateRegister, kProxRes11bit | kProxRate100ms);
+    m_i2c.Write(kProximitySensorPulsesRegister, 32);
+}
 
-    return ((uint16_t)prox[1] << 8) | prox[0]; // TODO: overflow bit
+uint32_t ColorSensor::GetProximity() {
+    return Read11BitRegister(kProximityDataRegister);
 }
 
 ColorSensor::ColorValues ColorSensor::GetColorValues() {
     uint8_t raw[12];
-    ColorValues color;
+    ColorValues color = {};
 
     if(!m_i2c.Read(kDataInfraredRegister, 12, raw)) {
-        color.IR = to20bit(&raw[0]);
-        color.Green = to20bit(&raw[3]);
-        color.Blue = to20bit(&raw[6]);
-        color.Red = to20bit(&raw[9]);
+        color.IR = To18Bit(&raw[0]);
+        color.Green = To18Bit(&raw[3]);
+        color.Blue = To18Bit(&raw[6]);
+        color.Red = To18Bit(&raw[9]);
     }
 
     return color;
 }
 
 uint32_t ColorSensor::GetRed() {
-    uint8_t raw[3];
-    if(m_i2c.Read(kDataRedRegister, 3, raw)) {
-        return 0;
-    }
-
-    return to20bit(raw);
+    return Read18BitRegister(kDataRedRegister);
 }
 
 uint32_t ColorSensor::GetGreen() {
-    uint8_t raw[3];
-    if(m_i2c.Read(kDataGreenRegister, 3, raw)) {
-        return 0;
-    }
-
-    return to20bit(raw);
+    return Read18BitRegister(kDataGreenRegister);
 }
 
 uint32_t ColorSensor::GetBlue() {
+    return Read18BitRegister(kDataBlueRegister);
+}
+
+uint32_t ColorSensor::GetIR() {
+    return Read18BitRegister(kDataInfraredRegister);
+}
+
+void ColorSensor::SetGain(ColorSensor::GainFactor g) {
+    m_i2c.Write(kGainRegister, g);
+}
+
+uint16_t ColorSensor::Read11BitRegister(uint8_t reg) {
+    uint8_t raw[2];
+
+    m_i2c.Read(reg, 2, raw);
+
+    return To11Bit(raw);
+}
+
+uint32_t ColorSensor::Read18BitRegister(uint8_t reg) {
     uint8_t raw[3];
 
-    if(m_i2c.Read(kDataBlueRegister, 3, raw)) {
-        return 0;
-    }
+    m_i2c.Read(reg, 3, raw);
 
-    return to20bit(raw);
+    return To18Bit(raw);
 }
