@@ -72,33 +72,50 @@ ColorSensor::ColorValues ColorSensor::GetColorValues() {
     ColorValues color = {};
 
     if(!m_i2c.Read(kDataInfraredRegister, 12, raw)) {
-        color.IR = To18Bit(&raw[0]);
-        color.Green = To18Bit(&raw[3]);
-        color.Blue = To18Bit(&raw[6]);
-        color.Red = To18Bit(&raw[9]);
+        color.IR = To20Bit(&raw[0]);
+        color.Green = To20Bit(&raw[3]);
+        color.Blue = To20Bit(&raw[6]);
+        color.Red = To20Bit(&raw[9]);
     }
 
     return color;
 }
 
 uint32_t ColorSensor::GetRed() {
-    return Read18BitRegister(kDataRedRegister);
+    return Read20BitRegister(kDataRedRegister);
 }
 
 uint32_t ColorSensor::GetGreen() {
-    return Read18BitRegister(kDataGreenRegister);
+    return Read20BitRegister(kDataGreenRegister);
 }
 
 uint32_t ColorSensor::GetBlue() {
-    return Read18BitRegister(kDataBlueRegister);
+    return Read20BitRegister(kDataBlueRegister);
 }
 
 uint32_t ColorSensor::GetIR() {
-    return Read18BitRegister(kDataInfraredRegister);
+    return Read20BitRegister(kDataInfraredRegister);
 }
 
-void ColorSensor::SetGain(ColorSensor::GainFactor g) {
-    m_i2c.Write(kGainRegister, g);
+void 
+ColorSensor::ConfigureProximitySensorLED(ColorSensor::LEDPulseFrequency freq,
+                                         ColorSensor::LEDCurrent curr, 
+                                         uint8_t pulses) {
+    m_i2c.Write(kProximitySensorLEDRegister, freq | curr);
+    m_i2c.Write(kProximitySensorPulsesRegister, pulses);
+}
+
+void 
+ColorSensor::ConfigureProximitySensor(ColorSensor::ProximitySensorResolution res, 
+                                      ColorSensor::ProximitySensorMeasurementRate rate) {
+    m_i2c.Write(kProximitySensorRateRegister, res | rate);
+}
+
+void ColorSensor::ConfigureColorSensor(ColorSensor::ColorSensorResolution res, 
+                                       ColorSensor::ColorSensorMeasurementRate rate, 
+                                       ColorSensor::GainFactor gain) {
+    m_i2c.Write(kLightSensorMeasurementRateRegister, res | rate);
+    m_i2c.Write(kLightSensorGainRegister, gain);
 }
 
 uint16_t ColorSensor::Read11BitRegister(uint8_t reg) {
@@ -109,10 +126,10 @@ uint16_t ColorSensor::Read11BitRegister(uint8_t reg) {
     return To11Bit(raw);
 }
 
-uint32_t ColorSensor::Read18BitRegister(uint8_t reg) {
+uint32_t ColorSensor::Read20BitRegister(uint8_t reg) {
     uint8_t raw[3];
 
     m_i2c.Read(reg, 3, raw);
 
-    return To18Bit(raw);
+    return To20Bit(raw);
 }

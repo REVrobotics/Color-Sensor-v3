@@ -36,7 +36,7 @@ namespace rev {
 /**
  * REV Robotics Color Sensor V3.
  *
- * This class allows access to a REV Robotics color sensor V3 on an I2C bus.
+ * This class allows access to a REV Robotics color sensor V3 on an I2C bus. 
  */
 class ColorSensor : public frc::ErrorBase {
     public:
@@ -48,15 +48,74 @@ class ColorSensor : public frc::ErrorBase {
         };
 
         enum GainFactor {
-            Gain1x = 0,
-            Gain3x = 1,
-            Gain6x = 2,
-            Gain9x = 3,
-            Gain18x = 4
+            kGain1x = 0,
+            kGain3x = 1,
+            kGain6x = 2,
+            kGain9x = 3,
+            kGain18x = 4
+        };
+
+        enum LEDPulseFrequency {
+            kFreq60kHz = 0x18,
+            kFreq70kHz = 0x40,
+            kFreq80kHz = 0x28,
+            kFreq90kHz = 0x30,
+            kFreq100kHz = 0x38,
+        };
+
+        enum LEDCurrent {
+            kPulse2mA = 0,
+            kPulse5mA = 1,
+            kPulse10mA = 2,
+            kPulse25mA = 3,
+            kPulse50mA = 4,
+            kPulse75mA = 5,
+            kPulse100mA = 6,
+            kPulse125mA = 7,
+        };
+
+        enum ProximitySensorResolution {
+            kProxRes8bit = 0x00,
+            kProxRes9bit = 0x08,
+            kProxRes10bit = 0x10,
+            kProxRes11bit = 0x18,
+        };
+
+        enum ProximitySensorMeasurementRate {
+            kProxRate6ms = 1,
+            kProxRate12ms = 2,
+            kProxRate25ms = 3,
+            kProxRate50ms = 4,
+            kProxRate100ms = 5,
+            kProxRate200ms = 6,
+            kProxRate400ms = 7,
+        };
+
+        enum ColorSensorResolution {
+            kColorSensorRes20bit = 0x00,
+            kColorSensorRes19bit = 0x08,
+            kColorSensorRes18bit = 0x10,
+            kColorSensorRes17bit = 0x18,
+            kColorSensorRes16bit = 0x20,
+            kColorSensorRes13bit = 0x28,
+        };
+
+        enum ColorSensorMeasurementRate {
+            kColorRate25ms = 0,
+            kColorRate50ms = 1,
+            kColorRate100ms = 2,
+            kColorRate200ms = 3,
+            kColorRate500ms = 4,
+            kColorRate1000ms = 5,
+            kColorRate2000ms = 7,
         };
 
         /**
          * Constructs a ColorSensor.
+         * 
+         * Note that the REV Color Sensor is really two devices in one 
+         * package - a color sensor providing red, green, blue and IR values,
+         * and a proximity sensor.
          *
          * @param port  The I2C port the color sensor is attached to
          */
@@ -110,17 +169,52 @@ class ColorSensor : public frc::ErrorBase {
         uint32_t GetIR();
 
         /**
-         * Set the gain factor applied to the color ADC values. By default, the
-         * gain factor is set to 3x when the chip boots up.
+         * Configure the the IR LED used by the proximity sensor. 
          * 
-         * @param gain  Enum representing one of the possible gain values that
-         * can be configured in the chip
+         * These settings are only needed for advanced users, the defaults 
+         * will work fine for most teams. Consult the APDS-9151 for more 
+         * information on these configuration settings and how they will affect
+         * proximity sensor measurements.
+         * 
+         * @param freq      The pulse modulation frequency for the proximity 
+         *                  sensor LED
+         * @param curr      The pulse current for the proximity sensor LED
+         * @param pulses    The number of pulses per measurement of the 
+         *                  proximity sensor LED
          */
-        void SetGain(GainFactor gain);
+        void ConfigureProximitySensorLED(LEDPulseFrequency freq, LEDCurrent curr, uint8_t pulses);
+        
+        /**
+         * Configure the proximity sensor.
+         * 
+         * These settings are only needed for advanced users, the defaults 
+         * will work fine for most teams. Consult the APDS-9151 for more 
+         * information on these configuration settings and how they will affect
+         * proximity sensor measurements.
+         * 
+         * @param res   Bit resolution output by the proximity sensor ADC.
+         * @param rate  Measurement rate of the proximity sensor
+         */
+        void ConfigureProximitySensor(ProximitySensorResolution res, ProximitySensorMeasurementRate rate);
+        
+        /**
+         * Configure the color sensor.
+         * 
+         * These settings are only needed for advanced users, the defaults 
+         * will work fine for most teams. Consult the APDS-9151 for more 
+         * information on these configuration settings and how they will affect
+         * color sensor measurements.
+         * 
+         * @param res   Bit resolution output by the respective light sensor ADCs
+         * @param rate  Measurement rate of the light sensor
+         * @param gain  Gain factor applied to light sensor (color) outputs
+         */
+        void ConfigureColorSensor(ColorSensorResolution res, ColorSensorMeasurementRate rate, GainFactor gain);
+
 
     private:
-        uint32_t Read18BitRegister(uint8_t reg);
-        uint32_t To18Bit(uint8_t *val) {
+        uint32_t Read20BitRegister(uint8_t reg);
+        uint32_t To20Bit(uint8_t *val) {
             return (((uint32_t)val[2] << 16) | ((uint32_t)val[1] << 8) | ((uint32_t)val[0])) & 0x03FFFF;
         }
         uint16_t Read11BitRegister(uint8_t reg);
@@ -138,9 +232,11 @@ class ColorSensor : public frc::ErrorBase {
 
         enum Registers {
             kMainCtrlRegister = 0x00,
+            kProximitySensorLEDRegister = 0x01,
             kProximitySensorPulsesRegister = 0x02,
             kProximitySensorRateRegister = 0x03,
-            kGainRegister = 0x05,
+            kLightSensorMeasurementRateRegister = 0x04,
+            kLightSensorGainRegister = 0x05,
             kPartIDRegister = 0x06,
             kProximityDataRegister = 0x08,
             kDataInfraredRegister = 0x0A,
@@ -153,23 +249,6 @@ class ColorSensor : public frc::ErrorBase {
             kProximitySensorEnable = 0x01,
             kLightSensorEnable = 0x02,
             kRGBMode = 0x04
-        };
-
-        enum ProximitySensorResolutionFields {
-            kProxRes8bit = 0x00,
-            kProxRes9bit = 0x08,
-            kProxRes10bit = 0x10,
-            kProxRes11bit = 0x18,
-        };
-
-        enum ProximitySensorMeasurementRateFields {
-            kProxRate6ms = 1,
-            kProxRate12ms = 2,
-            kProxRate25ms = 3,
-            kProxRate50ms = 4,
-            kProxRate100ms = 5,
-            kProxRate200ms = 6,
-            kProxRate400ms = 7,
         };
 };
 }
