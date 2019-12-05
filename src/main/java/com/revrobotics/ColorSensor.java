@@ -43,8 +43,7 @@ public class ColorSensor {
 
     private I2C m_i2c;
 
-    enum Register
-    {
+    enum Register {
         kMainCtrl(0x00),
         kProximitySensorLED(0x01),
         kProximitySensorPulses(0x02),
@@ -63,22 +62,17 @@ public class ColorSensor {
         Register(int i) { this.bVal = (byte) i; }
     }
 
-    enum MainControl
-    {
+    enum MainControl {
         kRGBMode(0x04),  /* If bit is set to 1, color channels are activated */
         kLightSensorEnable(0x02),  /* Enable light sensor */
         kProximitySensorEnable(0x01),  /* Proximity sensor active */
         OFF(0x00);  /* Nothing on */
 
-        public byte bitOr(MainControl him) { return (byte)(this.bVal | him.bVal); }
-        public byte bitOr(byte him)   { return (byte)(this.bVal | him); }
-
         public final byte bVal;
         MainControl(int i) { this.bVal = (byte) i; }
     }
 
-    enum GainFactor
-    {
+    enum GainFactor {
         kGain1x(0x00),
         kGain3x(0x01),
         kGain6x(0x02),
@@ -89,8 +83,7 @@ public class ColorSensor {
         GainFactor(int i) { this.bVal = (byte) i; }
     }
 
-    enum LEDCurrent
-    {
+    enum LEDCurrent {
         kPulse2mA(0x00),
         kPulse5mA(0x01),
         kPulse10mA(0x02),
@@ -100,44 +93,32 @@ public class ColorSensor {
         kPulse100mA(0x06), /* default value */
         kPulse125mA(0x07);
 
-        public byte bitOr(LEDCurrent him) { return (byte)(this.bVal | him.bVal); }
-        public byte bitOr(byte him)   { return (byte)(this.bVal | him); }
-
         public final byte bVal;
         LEDCurrent(int i) { this.bVal = (byte) i; }
     }
 
-    enum LEDPulseFrequency
-    {
+    enum LEDPulseFrequency {
         kFreq60kHz(0x18), /* default value */
         kFreq70kHz(0x40),
         kFreq80kHz(0x28),
         kFreq90kHz(0x30),
         kFreq100kHz(0x38);
 
-        public byte bitOr(LEDPulseFrequency him) { return (byte)(this.bVal | him.bVal); }
-        public byte bitOr(byte him)   { return (byte)(this.bVal | him); }
-
         public final byte bVal;
         LEDPulseFrequency(int i) { this.bVal = (byte) i; }
     }
 
-    enum ProximitySensorResolution
-    {
+    enum ProximitySensorResolution {
         kProxRes8bit(0x00),
         kProxRes9bit(0x01),
         kProxRes10bit(0x02),
         kProxRes11bit(0x03);
 
-        public byte bitOr(ProximitySensorResolution him) { return (byte)(this.bVal | him.bVal); }
-        public byte bitOr(byte him)   { return (byte)(this.bVal | him); }
-
         public final byte bVal;
         ProximitySensorResolution(int i) { this.bVal = (byte) i; }
     }
 
-    enum ProximitySensorMeasurementRate
-    {
+    enum ProximitySensorMeasurementRate {
         kProxRate6ms(0x01),
         kProxRate12ms(0x02),
         kProxRate25ms(0x03),
@@ -145,9 +126,6 @@ public class ColorSensor {
         kProxRate100ms(0x05), /* default value */
         kProxRate200ms(0x06),
         kProxRate400ms(0x07);
-
-        public byte bitOr(ProximitySensorMeasurementRate him) { return (byte)(this.bVal | him.bVal); }
-        public byte bitOr(byte him)   { return (byte)(this.bVal | him); }
 
         public final byte bVal;
         ProximitySensorMeasurementRate(int i) { this.bVal = (byte) i; }
@@ -161,9 +139,6 @@ public class ColorSensor {
         kColorSensorRes16bit(0x20),
         kColorSensorRes13bit(0x28);
 
-        public byte bitOr(ColorSensorResolution him) { return (byte)(this.bVal | him.bVal); }
-        public byte bitOr(byte him)   { return (byte)(this.bVal | him); }
-
         public final byte bVal;
         ColorSensorResolution(int i) { this.bVal = (byte) i; }
     }
@@ -176,9 +151,6 @@ public class ColorSensor {
         kColorRate500ms(4),
         kColorRate1000ms(5),
         kColorRate2000ms(7);
-
-        public byte bitOr(ColorSensorMeasurementRate him) { return (byte)(this.bVal | him.bVal); }
-        public byte bitOr(byte him)   { return (byte)(this.bVal | him); }
 
         public final byte bVal;
         ColorSensorMeasurementRate(int i) { this.bVal = (byte) i; }
@@ -214,11 +186,11 @@ public class ColorSensor {
      * @return  Proximity measurement value, ranging from 0 to 2047
      */
     public int getProximity() {
-        return read11BitRegister(Register.kProximityData.bVal);
+        return read11BitRegister(Register.kProximityData);
     }
 
     /**
-     * Get the raw color values from their respective ADCs (18-bit).
+     * Get the raw color values from their respective ADCs (20-bit).
      * 
      * @return  ColorValues struct containing red, green, blue and IR values
      */
@@ -234,39 +206,39 @@ public class ColorSensor {
     }
 
     /**
-     * Get the raw color value from the red ADC (18-bit)
+     * Get the raw color value from the red ADC (20-bit)
      * 
      * @return  Red ADC value
      */
     public int getRed() {
-        return read18BitRegister(Register.kDataRed.bVal);
+        return read20BitRegister(Register.kDataRed);
     }
 
     /**
-     * Get the raw color value from the green ADC (18-bit)
+     * Get the raw color value from the green ADC (20-bit)
      * 
      * @return  Green ADC value
      */
     public int getGreen() {
-        return read18BitRegister(Register.kDataGreen.bVal);
+        return read20BitRegister(Register.kDataGreen);
     }
 
     /**
-     * Get the raw color value from the blue ADC (18-bit)
+     * Get the raw color value from the blue ADC (20-bit)
      * 
      * @return  Blue ADC value
      */
     public int getBlue() {
-        return read18BitRegister(Register.kDataBlue.bVal);
+        return read20BitRegister(Register.kDataBlue);
     }
 
     /**
-     * Get the raw color value from the IR ADC (18-bit)
+     * Get the raw color value from the IR ADC (20-bit)
      * 
      * @return  IR ADC value
      */
     public int getIR() {
-        return read18BitRegister(Register.kDataInfrared.bVal);
+        return read20BitRegister(Register.kDataInfrared);
     }
 
     /**
@@ -283,9 +255,11 @@ public class ColorSensor {
      * @param pulses    The number of pulses per measurement of the 
      *                  proximity sensor LED (0-255)
      */
-    public void configureProximitySensorLED(LEDPulseFrequency freq, LEDCurrent curr, int pulses) {
-        m_i2c.write(Register.kProximitySensorLED.bVal, freq.bVal | curr.bVal);
-        m_i2c.write(Register.kProximitySensorPulses.bVal, pulses);
+    public void configureProximitySensorLED(LEDPulseFrequency freq, 
+                                            LEDCurrent curr, 
+                                            int pulses) {
+        write8(Register.kProximitySensorLED, freq.bVal | curr.bVal);
+        write8(Register.kProximitySensorPulses, (byte) pulses);
     }
     
     /**
@@ -299,8 +273,9 @@ public class ColorSensor {
      * @param res   Bit resolution output by the proximity sensor ADC.
      * @param rate  Measurement rate of the proximity sensor
      */
-    public void configureProximitySensor(ProximitySensorResolution res, ProximitySensorMeasurementRate rate) {
-        m_i2c.write(Register.kProximitySensorRate.bVal, res.bVal | rate.bVal);
+    public void configureProximitySensor(ProximitySensorResolution res, 
+                                         ProximitySensorMeasurementRate rate) {
+        write8(Register.kProximitySensorRate, res.bVal | rate.bVal);
     }
     
     /**
@@ -315,9 +290,11 @@ public class ColorSensor {
      * @param rate  Measurement rate of the light sensor
      * @param gain  Gain factor applied to light sensor (color) outputs
      */
-    public void configureColorSensor(ColorSensorResolution res, ColorSensorMeasurementRate rate, GainFactor gain) {
-        m_i2c.write(Register.kLightSensorMeasurementRate.bVal, res.bVal | rate.bVal);
-        m_i2c.write(Register.kLightSensorGain.bVal, gain.bVal);
+    public void configureColorSensor(ColorSensorResolution res, 
+                                     ColorSensorMeasurementRate rate, 
+                                     GainFactor gain) {
+        write8(Register.kLightSensorMeasurementRate, res.bVal | rate.bVal);
+        write8(Register.kLightSensorGain, gain.bVal);
     }
 
     public void close() {
@@ -343,30 +320,37 @@ public class ColorSensor {
     }
 
     private void initializeDevice() {
-        m_i2c.write(Register.kMainCtrl.bVal, 
-            MainControl.kRGBMode.bVal | MainControl.kLightSensorEnable.bVal | MainControl.kProximitySensorEnable.bVal);
+        write8(Register.kMainCtrl, 
+            MainControl.kRGBMode.bVal | 
+            MainControl.kLightSensorEnable.bVal | 
+            MainControl.kProximitySensorEnable.bVal);
 
-        m_i2c.write(Register.kProximitySensorRate.bVal, 
-            ProximitySensorResolution.kProxRes11bit.bVal | ProximitySensorMeasurementRate.kProxRate100ms.bVal);
+        write8(Register.kProximitySensorRate, 
+            ProximitySensorResolution.kProxRes11bit.bVal | 
+            ProximitySensorMeasurementRate.kProxRate100ms.bVal);
 
-        m_i2c.write(Register.kProximitySensorPulses.bVal, 32);
+        write8(Register.kProximitySensorPulses, (byte) 32);
     }
 
-    private int read11BitRegister(byte reg) {
+    private int read11BitRegister(Register reg) {
         ByteBuffer raw = ByteBuffer.allocate(2);
     
-        m_i2c.read(reg, 2, raw);
+        m_i2c.read(reg.bVal, 2, raw);
     
         raw.order(ByteOrder.LITTLE_ENDIAN);
         return raw.getShort() & 0x7FF;
     }
 
-    private int read18BitRegister(byte reg) {
+    private int read20BitRegister(Register reg) {
         ByteBuffer raw = ByteBuffer.allocate(4);
     
-        m_i2c.read(reg, 3, raw);
+        m_i2c.read(reg.bVal, 3, raw);
 
         raw.order(ByteOrder.LITTLE_ENDIAN);
         return raw.getInt() & 0x03FFFF;
+    }
+
+    private void write8(Register reg, int data) {
+        m_i2c.write(reg.bVal, data);
     }
 }
