@@ -22,6 +22,8 @@
 		<Item Name="Color Sensor Open.vi" Type="VI" URL="../Color Sensor Open.vi"/>
 		<Item Name="ColorSensorDevRef.ctl" Type="VI" URL="../ColorSensorDevRef.ctl"/>
 		<Item Name="ColorSensorMeasurementRate.ctl" Type="VI" URL="../ColorSensorMeasurementRate.ctl"/>
+		<Item Name="ColorSensorRefNum Registry Get.vi" Type="VI" URL="../ColorSensorRefNum Registry Get.vi"/>
+		<Item Name="ColorSensorRefNum Registry Set.vi" Type="VI" URL="../ColorSensorRefNum Registry Set.vi"/>
 		<Item Name="ColorSensorResolution.ctl" Type="VI" URL="../ColorSensorResolution.ctl"/>
 		<Item Name="Configure Color Sensor.vi" Type="VI" URL="../Configure Color Sensor.vi"/>
 		<Item Name="Configure Proximity Sensor LED.vi" Type="VI" URL="../Configure Proximity Sensor LED.vi"/>
