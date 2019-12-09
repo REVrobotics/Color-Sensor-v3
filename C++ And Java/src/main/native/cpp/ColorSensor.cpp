@@ -97,6 +97,10 @@ uint32_t ColorSensor::GetIR() {
     return Read20BitRegister(kDataInfraredRegister);
 }
 
+void ColorSensor::SetGain(ColorSensor::GainFactor gain) {
+    m_i2c.Write(kLightSensorGainRegister, gain);
+}
+
 void 
 ColorSensor::ConfigureProximitySensorLED(ColorSensor::LEDPulseFrequency freq,
                                          ColorSensor::LEDCurrent curr, 
@@ -115,7 +119,6 @@ void ColorSensor::ConfigureColorSensor(ColorSensor::ColorSensorResolution res,
                                        ColorSensor::ColorSensorMeasurementRate rate, 
                                        ColorSensor::GainFactor gain) {
     m_i2c.Write(kLightSensorMeasurementRateRegister, res | rate);
-    m_i2c.Write(kLightSensorGainRegister, gain);
 }
 
 uint16_t ColorSensor::Read11BitRegister(uint8_t reg) {

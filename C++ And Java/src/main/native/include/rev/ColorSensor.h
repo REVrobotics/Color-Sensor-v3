@@ -170,6 +170,17 @@ class ColorSensor : public frc::ErrorBase {
         uint32_t GetIR();
 
         /**
+         * Set the gain factor applied to color ADC measurements.
+         * 
+         * By default, the gain is set to 3x.
+         * 
+         * @param gain  Gain factor applied to color ADC measurements 
+         *              measurements
+         *
+         */
+        void SetGain(GainFactor gain);
+
+        /**
          * Configure the the IR LED used by the proximity sensor. 
          * 
          * These settings are only needed for advanced users, the defaults 
@@ -208,9 +219,8 @@ class ColorSensor : public frc::ErrorBase {
          * 
          * @param res   Bit resolution output by the respective light sensor ADCs
          * @param rate  Measurement rate of the light sensor
-         * @param gain  Gain factor applied to light sensor (color) outputs
          */
-        void ConfigureColorSensor(ColorSensorResolution res, ColorSensorMeasurementRate rate, GainFactor gain);
+        void ConfigureColorSensor(ColorSensorResolution res, ColorSensorMeasurementRate rate);
 
 
     private:
