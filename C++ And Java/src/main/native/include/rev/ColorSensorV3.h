@@ -30,7 +30,6 @@
 
 #include "rev/ColorSensorV3LowLevel.h"
 #include "frc/ErrorBase.h"
-#include "frc/I2C.h"
 #include <vector>
 #include <string>
 
@@ -42,160 +41,147 @@ namespace rev {
  * This class allows access to a REV Robotics color sensor V3 on an I2C bus. 
  */
 class ColorSensorV3 : public ColorSensorV3LowLevel, public frc::ErrorBase {
+public:
+    struct ColorValues {
+        uint32_t Red;
+        uint32_t Green;
+        uint32_t Blue;
+        uint32_t IR;
+    };
+
+    enum class Color {
+        red = 0,
+        green = 1,
+        blue = 2,
+        yellow = 3,
+        unknown = 4
+    };
+
+    /**
+     * Constructs a ColorSensorV3.
+     * 
+     * Note that the REV Color Sensor is really two devices in one package:
+     * a color sensor providing red, green, blue and IR values, and a proximity
+     * sensor.
+     *
+     * @param port  The I2C port the color sensor is attached to
+     */
+    explicit ColorSensorV3(frc::I2C::Port port);
+
+    ColorSensorV3(ColorSensorV3&&) = default;
+    ColorSensorV3& operator=(ColorSensorV3&&) = default;
+
+    /**
+     * Get the most likely color. Works best when within 2 inches and 
+     * perpendicular to surface of interest.
+     * 
+     * @return  Color enum of the most likely color, including unknown if
+     *          the minimum threshold is not met
+     */
+    Color GetColor();
+
+    /**
+     * Set the confidence interval for determining color. Defaults to 0.95
+     * 
+     * @param confidence    A value between 0 and 1
+     */
+    void SetConfidence(double confidence);
+
+    /**
+     * Get the raw color values from their respective ADCs.
+     * 
+     * @return  ColorValues struct containing red, green, blue and IR values
+     */
+    ColorValues GetColorValues();
+
+    /**
+     * Get the raw proximity value from the sensor ADC. This value is largest 
+     * when an object is close to the sensor and smallest when 
+     * far away.
+     * 
+     * @return  Proximity measurement value, ranging from 0 to 2047 in
+     *          default configuration
+     */
+    uint32_t GetProximity();
+
+    /**
+     * Get the raw color value from the red ADC
+     * 
+     * @return  Red ADC value
+     */
+    uint32_t GetRed();
+
+    /**
+     * Get the raw color value from the green ADC
+     * 
+     * @return  Green ADC value
+     */
+    uint32_t GetGreen();
+
+    /**
+     * Get the raw color value from the blue ADC
+     * 
+     * @return  Blue ADC value
+     */
+    uint32_t GetBlue();
+
+    /**
+     * Get the raw color value from the IR ADC
+     * 
+     * @return  IR ADC value
+     */
+    uint32_t GetIR();
+
+    /**
+     * Set the gain factor applied to color ADC measurements.
+     * 
+     * By default, the gain is set to 3x.
+     * 
+     * @param gain  Gain factor applied to color ADC measurements 
+     *              measurements
+     */
+    void SetGain(GainFactor gain);
+
+private:
+    struct NormalizedColorValues {
+        double Red;
+        double Green;
+        double Blue;
+        double IR;
+
+        NormalizedColorValues(double blue, double green, double red, double ir) :
+            Red(red), Green(green), Blue(blue), IR(ir) {}
+
+        NormalizedColorValues(const ColorValues &cv);
+    };
+
+    class CalibCoeff {
     public:
-        struct ColorValues {
-            uint32_t Red;
-            uint32_t Green;
-            uint32_t Blue;
-            uint32_t IR;
-        };
+        CalibCoeff(NormalizedColorValues colors, Color col) : 
+            m_nc(colors), m_col(col) {}
 
-        struct NormalizedColorValues {
-            double Red;
-            double Green;
-            double Blue;
-            double IR;
+        double GetConfidence(const NormalizedColorValues &cv) const;
 
-            NormalizedColorValues() = default;
-            NormalizedColorValues(double blue, double green, double red, double ir) :
-                Red(red), Green(green), Blue(blue), IR(ir) {}
-        };
-
-        enum class Color {
-            red = 0,
-            green = 1,
-            blue = 2,
-            yellow = 3,
-            unknown = 4
-        };
-
-        std::vector<std::string> ColorNames = {"Red", "Green", "Blue", "Yellow", "Unknown"};
-
-        enum class GainFactor {
-            k1x = 0,
-            k3x = 1,
-            k6x = 2,
-            k9x = 3,
-            k18x = 4
-        };
-
-        /**
-         * Constructs a ColorSensorV3.
-         * 
-         * Note that the REV Color Sensor is really two devices in one 
-         * package - a color sensor providing red, green, blue and IR values,
-         * and a proximity sensor.
-         *
-         * @param port  The I2C port the color sensor is attached to
-         */
-        explicit ColorSensorV3(frc::I2C::Port port);
-
-        ColorSensorV3(ColorSensorV3&&) = default;
-        ColorSensorV3& operator=(ColorSensorV3&&) = default;
-
-        /**
-         * Get the most likely color. Works best when within 2 inches and
-         * perpendicular to surface of interest.
-         * 
-         * @return  Color enum of the most likely color, including unknown if
-         *          the minimum threshold is not met
-         */
-        Color GetColor();
-
-        /**
-         * Set the confidence interval for determining color. Defaults to 0.95
-         * 
-         * @param confidence    A value between 0 and 1
-         */
-        void SetConfidence(double confidence);
-
-        /**
-         * Get the raw color values from their respective ADCs.
-         * 
-         * @return  ColorValues struct containing red, green, blue and IR values
-         */
-        ColorValues GetColorValues();
-
-        /**
-         * Get normalized color values
-         * 
-         * @return  NormalizedColorValues struct
-         */
-        NormalizedColorValues GetNormalizedColorValues();
-
-        /**
-         * Get the raw proximity value from the sensor ADC. This value 
-         * is largest when an object is close to the sensor and smallest when 
-         * far away.
-         * 
-         * @return  Proximity measurement value, ranging from 0 to 2047 in
-         *          default configuration
-         */
-        uint32_t GetProximity();
-
-        /**
-         * Get the raw color value from the red ADC
-         * 
-         * @return  Red ADC value
-         */
-        uint32_t GetRed();
-
-        /**
-         * Get the raw color value from the green ADC
-         * 
-         * @return  Green ADC value
-         */
-        uint32_t GetGreen();
-
-        /**
-         * Get the raw color value from the blue ADC
-         * 
-         * @return  Blue ADC value
-         */
-        uint32_t GetBlue();
-
-        /**
-         * Get the raw color value from the IR ADC
-         * 
-         * @return  IR ADC value
-         */
-        uint32_t GetIR();
-
-        /**
-         * Set the gain factor applied to color ADC measurements.
-         * 
-         * By default, the gain is set to 3x.
-         * 
-         * @param gain  Gain factor applied to color ADC measurements 
-         *              measurements
-         *
-         */
-        void SetGain(GainFactor gain);
-
+        Color GetColor() const { return m_col; }
 
     private:
-        class CalibCoeff {
-        public:
-            CalibCoeff(NormalizedColorValues colors, Color col) : 
-                m_nc(colors), m_col(col) {}
+        NormalizedColorValues m_nc;
+        Color m_col;
+    };
 
-            double GetConfidence(const NormalizedColorValues &cv) const {
-                return 1 - sqrt(pow(cv.Red - m_nc.Red, 2) + pow(cv.Green - m_nc.Green, 2) + pow(cv.Blue - m_nc.Blue, 2) + pow(cv.IR - m_nc.IR, 2));
-            }
+    NormalizedColorValues GetNormalizedColorValues() { return NormalizedColorValues(GetColorValues()); }
 
-            const Color GetColor() const { return m_col; }
+    const CalibCoeff blueCoeff{NormalizedColorValues(0.435, 0.415, 0.133, 0.017), Color::blue};
+    const CalibCoeff greenCoeff{NormalizedColorValues(0.241, 0.548, 0.189, 0.022), Color::green};
+    const CalibCoeff redCoeff{NormalizedColorValues(0.117, 0.319, 0.540, 0.024), Color::red};
+    const CalibCoeff yellowCoeff{NormalizedColorValues(0.112, 0.529, 0.349, 0.010), Color::yellow};
+    const std::vector<CalibCoeff> possibleColors = {blueCoeff, greenCoeff, redCoeff, yellowCoeff};
 
-        private:
-            NormalizedColorValues m_nc;
-            Color m_col;
-        };
-
-        const CalibCoeff blueCoeff{NormalizedColorValues(0.133, 0.415, 0.435, 0.017), Color::blue};
-        const CalibCoeff greenCoeff{NormalizedColorValues(0.189, 0.548, 0.241, 0.022), Color::green};
-        const CalibCoeff redCoeff{NormalizedColorValues(0.540, 0.319, 0.117, 0.024), Color::red};
-        const CalibCoeff yellowCoeff{NormalizedColorValues(0.349, 0.529, 0.112, 0.010), Color::yellow};
-        const std::vector<CalibCoeff> possibleColors = {blueCoeff, greenCoeff, redCoeff, yellowCoeff};
-
-        double m_confidenceLevel;
+    double m_confidenceLevel;
+    static constexpr double kDefaultConfidence = 0.95;
+    static constexpr GainFactor kDefaultGain = GainFactor::k3x;
 };
+
+std::string ColorToString(ColorSensorV3::Color cv);
+
 }

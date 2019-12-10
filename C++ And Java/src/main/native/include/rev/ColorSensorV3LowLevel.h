@@ -36,7 +36,16 @@ public:
     static constexpr int kAddress = 0x52;
     static constexpr int kExpectedPartID = 0xC2;
 
-    explicit ColorSensorV3LowLevel(frc::I2C::Port port) : m_i2c(port, kAddress) {};
+    explicit ColorSensorV3LowLevel(frc::I2C::Port port) 
+        : m_i2c(port, kAddress) {};
+
+    enum class GainFactor {
+        k1x = 0,
+        k3x = 1,
+        k6x = 2,
+        k9x = 3,
+        k18x = 4
+    };
 
     enum class LEDPulseFrequency {
         kFreq60kHz = 0x18,
@@ -135,6 +144,20 @@ public:
      */
     void ConfigureColorSensor(ColorResolution res, ColorMeasurementRate rate);
 
+    /**
+     * Indicates if the device reset. Based on the power on status flag in the
+     * status register. Per the datasheet:
+     * 
+     * Part went through a power-up event, either because the part was turned
+     * on or because there was power supply voltage disturbance (default at 
+     * first register read).
+     * 
+     * @return  bool indicating if the device was reset
+     */
+    bool HasReset();
+    
+
+protected:
     enum class Register {
         kMainCtrl = 0x00,
         kProximitySensorLED = 0x01,
@@ -143,6 +166,7 @@ public:
         kLightSensorMeasurementRate = 0x04,
         kLightSensorGain = 0x05,
         kPartID = 0x06,
+        kMainStatus = 0x07,
         kProximityData = 0x08,
         kDataInfrared = 0x0A,
         kDataGreen = 0x0D,
@@ -156,6 +180,16 @@ public:
         kRGBMode = 0x04
     };
 
+    struct MainStatus {
+        uint8_t PSDataStatus:1;
+        uint8_t PSInterruptStatus:1;
+        uint8_t PSLogicStatus:1;
+        uint8_t LSDataStatus:1;
+        uint8_t LSInterruptStatus:1;
+        uint8_t PowerOnStatus:1;
+        uint8_t :2;
+    };
+
     bool Write(Register reg, uint8_t data) {
         return m_i2c.Write(static_cast<uint8_t>(reg), data);
     }
@@ -165,7 +199,8 @@ public:
     }
 
     uint32_t To20Bit(uint8_t *val) {
-        return (((uint32_t)val[2] << 16) | ((uint32_t)val[1] << 8) | ((uint32_t)val[0])) & 0x03FFFF;
+        return (((uint32_t)val[2] << 16) | ((uint32_t)val[1] << 8) | 
+                ((uint32_t)val[0])) & 0x03FFFF;
     }
     
     uint16_t To11Bit(uint8_t *val) {
@@ -177,8 +212,17 @@ public:
 
     bool CheckDeviceID();
     void InitializeDevice();
+    MainStatus GetStatus();
 
 private:
     frc::I2C m_i2c;
+
+    static constexpr LEDPulseFrequency kDefaultPulseFreq = LEDPulseFrequency::kFreq60kHz;
+    static constexpr LEDCurrent kDefaultLEDCurrent = LEDCurrent::kPulse100mA;
+    static constexpr uint8_t kDefaultPulses = 32;
+    static constexpr ProximityResolution kDefaultProxRes = ProximityResolution::k11bit;
+    static constexpr ProximityMeasurementRate kDefaultProxRate = ProximityMeasurementRate::k100ms;
+    static constexpr ColorResolution kDefaultColorRes = ColorResolution::k18bit;
+    static constexpr ColorMeasurementRate kDefaultColorRate = ColorMeasurementRate::k100ms;
 };
 }

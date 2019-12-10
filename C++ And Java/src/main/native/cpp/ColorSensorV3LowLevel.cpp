@@ -42,11 +42,17 @@ bool ColorSensorV3LowLevel::CheckDeviceID() {
     }
 
     if(partID != kExpectedPartID) {
-        frc::DriverStation::ReportError("Unknown device found with same I2C addres as REV color sensor");
+        frc::DriverStation::ReportError("Unknown device found with same I2C address as REV color sensor");
         return false;
     }
 
     return true;
+}
+
+ColorSensorV3LowLevel::MainStatus ColorSensorV3LowLevel::GetStatus() {
+    MainStatus stat = {};
+    Read(Register::kMainStatus, 1, reinterpret_cast<uint8_t*>(&stat));
+    return stat;
 }
 
 void ColorSensorV3LowLevel::InitializeDevice() {
@@ -55,11 +61,9 @@ void ColorSensorV3LowLevel::InitializeDevice() {
           static_cast<uint8_t>(MainCtrlFields::kLightSensorEnable) | 
           static_cast<uint8_t>(MainCtrlFields::kProximitySensorEnable));
 
-    Write(Register::kProximitySensorRate, 
-          static_cast<uint8_t>(ProximityResolution::k11bit) | 
-          static_cast<uint8_t>(ProximityMeasurementRate::k100ms));
-
-    Write(Register::kProximitySensorPulses, 32);
+    ConfigureProximitySensorLED(kDefaultPulseFreq, kDefaultLEDCurrent, kDefaultPulses);
+    ConfigureProximitySensor(kDefaultProxRes, kDefaultProxRate);
+    ConfigureColorSensor(kDefaultColorRes, kDefaultColorRate);
 }
 
 void 
@@ -86,6 +90,10 @@ void ColorSensorV3LowLevel::ConfigureColorSensor(ColorResolution res,
     Write(Register::kLightSensorMeasurementRate, 
           static_cast<uint8_t>(res) | 
           static_cast<uint8_t>(rate));
+}
+
+bool ColorSensorV3LowLevel::HasReset() {
+    return GetStatus().PowerOnStatus != 0;
 }
 
 uint16_t ColorSensorV3LowLevel::Read11BitRegister(Register reg) {

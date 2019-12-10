@@ -28,20 +28,27 @@
 
 #include "rev/ColorSensorV3.h"
 #include "frc/DriverStation.h"
+#include <frc/smartdashboard/SmartDashboard.h>
 
 #include <iostream>
 #include <iomanip>
 
 using namespace rev;
 
-ColorSensorV3::ColorSensorV3(frc::I2C::Port port) 
-    : ColorSensorV3LowLevel(port) {
+std::string rev::ColorToString(ColorSensorV3::Color cv) {
+    static const std::vector<std::string> 
+        ColorNames = {"Red", "Green", "Blue", "Yellow", "Unknown"};
+    return ColorNames[static_cast<int>(cv)];
+}
+
+ColorSensorV3::ColorSensorV3(frc::I2C::Port port)
+    : ColorSensorV3LowLevel(port), m_confidenceLevel(kDefaultConfidence) {
 
     if(!CheckDeviceID())
         return;
 
     InitializeDevice();
-    SetConfidence(0.95);
+    SetGain(kDefaultGain);
 }
 
 uint32_t ColorSensorV3::GetProximity() {
@@ -84,18 +91,20 @@ void ColorSensorV3::SetGain(ColorSensorV3::GainFactor gain) {
 
 ColorSensorV3::Color ColorSensorV3::GetColor() {
     NormalizedColorValues cv = GetNormalizedColorValues();
+    // printf("B: %0.3f, G: %0.3f, R: %0.3f, I: %0.3f\n", cv.Blue, cv.Green, cv.Red, cv.IR);
     Color mostLikelyColor = Color::unknown;
     double maxR = 0;
 
     for(auto c : possibleColors) {
         double r = c.GetConfidence(cv);
+        std::cout << ColorToString(c.GetColor()) << ": " << std::setprecision(3) << r << "\n";
+        // TODO: ignore confidence if IR value is very large, indicating low light condition
         if(r > m_confidenceLevel && r > maxR) {
             mostLikelyColor = c.GetColor();
             maxR = r;
         }
     }
 
-    // std::cout << "MOST LIKELY: " << ColorNames[static_cast<int>(mostLikelyColor)] << "\n\n";
     return mostLikelyColor;
 }
 
@@ -104,16 +113,20 @@ void ColorSensorV3::SetConfidence(double confidence) {
         m_confidenceLevel = confidence;
 }
 
-ColorSensorV3::NormalizedColorValues ColorSensorV3::GetNormalizedColorValues() {
-    NormalizedColorValues nv;
-    ColorValues cv = GetColorValues();
+ColorSensorV3::NormalizedColorValues::NormalizedColorValues(
+    const ColorValues &cv) {
     uint32_t magn = cv.Red + cv.Blue + cv.Green + cv.IR;
-    if(magn != 0) {
-        nv.Red = (double)cv.Red / magn;
-        nv.Green = (double)cv.Green / magn;
-        nv.Blue = (double)cv.Blue / magn;
-        nv.IR = (double)cv.IR / magn;
+    if(magn) {
+        Red = (double)cv.Red / magn;
+        Green = (double)cv.Green / magn;
+        Blue = (double)cv.Blue / magn;
+        IR = (double)cv.IR / magn;
     }
+}
 
-    return nv;
+double ColorSensorV3::CalibCoeff::GetConfidence(const NormalizedColorValues &cv) const {
+    return (sqrt(2) - sqrt(pow(cv.Red - m_nc.Red, 2) + 
+                           pow(cv.Green - m_nc.Green, 2) + 
+                           pow(cv.Blue - m_nc.Blue, 2) + 
+                           pow(cv.IR - m_nc.IR, 2)))/sqrt(2);
 }
