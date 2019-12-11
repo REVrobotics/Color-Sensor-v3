@@ -30,12 +30,9 @@
 #include "frc/DriverStation.h"
 #include <frc/smartdashboard/SmartDashboard.h>
 
-#include <iostream>
-#include <iomanip>
-
 using namespace rev;
 
-std::string rev::ColorToString(ColorSensorV3::Color cv) {
+std::string rev::ColorSensorV3::ColorToString(Color cv) {
     static const std::vector<std::string> 
         ColorNames = {"Red", "Green", "Blue", "Yellow", "Unknown"};
     return ColorNames[static_cast<int>(cv)];
@@ -90,15 +87,12 @@ void ColorSensorV3::SetGain(ColorSensorV3::GainFactor gain) {
 }
 
 ColorSensorV3::Color ColorSensorV3::GetColor() {
-    NormalizedColorValues cv = GetNormalizedColorValues();
-    // printf("B: %0.3f, G: %0.3f, R: %0.3f, I: %0.3f\n", cv.Blue, cv.Green, cv.Red, cv.IR);
+    NormColorValues cv = GetNormColorValues();
     Color mostLikelyColor = Color::unknown;
     double maxR = 0;
 
     for(auto c : possibleColors) {
         double r = c.GetConfidence(cv);
-        std::cout << ColorToString(c.GetColor()) << ": " << std::setprecision(3) << r << "\n";
-        // TODO: ignore confidence if IR value is very large, indicating low light condition
         if(r > m_confidenceLevel && r > maxR) {
             mostLikelyColor = c.GetColor();
             maxR = r;
@@ -113,8 +107,7 @@ void ColorSensorV3::SetConfidence(double confidence) {
         m_confidenceLevel = confidence;
 }
 
-ColorSensorV3::NormalizedColorValues::NormalizedColorValues(
-    const ColorValues &cv) {
+ColorSensorV3::NormColorValues::NormColorValues(const ColorValues &cv) {
     uint32_t magn = cv.Red + cv.Blue + cv.Green + cv.IR;
     if(magn) {
         Red = (double)cv.Red / magn;
@@ -124,9 +117,19 @@ ColorSensorV3::NormalizedColorValues::NormalizedColorValues(
     }
 }
 
-double ColorSensorV3::CalibCoeff::GetConfidence(const NormalizedColorValues &cv) const {
-    return (sqrt(2) - sqrt(pow(cv.Red - m_nc.Red, 2) + 
-                           pow(cv.Green - m_nc.Green, 2) + 
-                           pow(cv.Blue - m_nc.Blue, 2) + 
-                           pow(cv.IR - m_nc.IR, 2)))/sqrt(2);
+/**
+ * GetConfidence uses euclidean distance to compare a given normalized RGB IR 
+ * vector against normalized calibrated coefficients for a swatch color. 
+ * This distance is then normalized and subtracted from 1 to give a 
+ * "confidence", where 1 represents a perfect match and 0 represents no 
+ * similarity.
+ */
+double 
+ColorSensorV3::CalibCoeff::GetConfidence(const NormColorValues &cv) const {
+    double redDiff = cv.Red - m_nc.Red;
+    double greenDiff = cv.Green - m_nc.Green;
+    double blueDiff = cv.Blue - m_nc.Blue;
+    double irDiff = cv.IR - m_nc.IR;
+
+    return 1 - sqrt((redDiff*redDiff + greenDiff*greenDiff + blueDiff*blueDiff + irDiff*irDiff)/2);
 }

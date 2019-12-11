@@ -142,46 +142,51 @@ public:
      */
     void SetGain(GainFactor gain);
 
+    /**
+     * Helper function to turn Color enums into user readable strings
+     * 
+     * @return  Human readable string describing the color
+     */
+    static std::string ColorToString(ColorSensorV3::Color cv);
+
 private:
-    struct NormalizedColorValues {
+    struct NormColorValues {
         double Red;
         double Green;
         double Blue;
         double IR;
 
-        NormalizedColorValues(double blue, double green, double red, double ir) :
+        NormColorValues(double blue, double green, double red, double ir) :
             Red(red), Green(green), Blue(blue), IR(ir) {}
 
-        NormalizedColorValues(const ColorValues &cv);
+        NormColorValues(const ColorValues &cv);
     };
 
     class CalibCoeff {
     public:
-        CalibCoeff(NormalizedColorValues colors, Color col) : 
+        CalibCoeff(NormColorValues colors, Color col) : 
             m_nc(colors), m_col(col) {}
 
-        double GetConfidence(const NormalizedColorValues &cv) const;
+        double GetConfidence(const NormColorValues &cv) const;
 
         Color GetColor() const { return m_col; }
 
     private:
-        NormalizedColorValues m_nc;
+        NormColorValues m_nc;
         Color m_col;
     };
 
-    NormalizedColorValues GetNormalizedColorValues() { return NormalizedColorValues(GetColorValues()); }
+    NormColorValues GetNormColorValues() { return NormColorValues(GetColorValues()); }
 
-    const CalibCoeff blueCoeff{NormalizedColorValues(0.435, 0.415, 0.133, 0.017), Color::blue};
-    const CalibCoeff greenCoeff{NormalizedColorValues(0.241, 0.548, 0.189, 0.022), Color::green};
-    const CalibCoeff redCoeff{NormalizedColorValues(0.117, 0.319, 0.540, 0.024), Color::red};
-    const CalibCoeff yellowCoeff{NormalizedColorValues(0.112, 0.529, 0.349, 0.010), Color::yellow};
+    const CalibCoeff blueCoeff{NormColorValues(0.435, 0.415, 0.133, 0.017), Color::blue};
+    const CalibCoeff greenCoeff{NormColorValues(0.241, 0.548, 0.189, 0.022), Color::green};
+    const CalibCoeff redCoeff{NormColorValues(0.117, 0.319, 0.540, 0.024), Color::red};
+    const CalibCoeff yellowCoeff{NormColorValues(0.112, 0.529, 0.349, 0.010), Color::yellow};
     const std::vector<CalibCoeff> possibleColors = {blueCoeff, greenCoeff, redCoeff, yellowCoeff};
 
     double m_confidenceLevel;
     static constexpr double kDefaultConfidence = 0.95;
     static constexpr GainFactor kDefaultGain = GainFactor::k3x;
 };
-
-std::string ColorToString(ColorSensorV3::Color cv);
 
 }

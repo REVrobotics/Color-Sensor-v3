@@ -199,8 +199,7 @@ protected:
     }
 
     uint32_t To20Bit(uint8_t *val) {
-        return (((uint32_t)val[2] << 16) | ((uint32_t)val[1] << 8) | 
-                ((uint32_t)val[0])) & 0x03FFFF;
+        return (((uint32_t)val[2] << 16) | ((uint32_t)val[1] << 8) | val[0]) & 0x03FFFF;
     }
     
     uint16_t To11Bit(uint8_t *val) {
