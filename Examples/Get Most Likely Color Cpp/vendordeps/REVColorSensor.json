@@ -1,0 +1,34 @@
+{
+    "fileName": "REVColorSensor.json",
+    "name": "REVColorSensor",
+    "version": "0.0.1-alpha",
+    "uuid": "cda7b4b1-d003-44ac-a1ef-485c1347059a",
+    "mavenUrls": [
+        "http://www.revrobotics.com/content/sw/max/sdk/maven/"
+    ],
+    "jsonUrl": "http://www.revrobotics.com/content/sw/max/sdk/REVColorSensor.json",
+    "javaDependencies": [
+        {
+            "groupId": "com.revrobotics.frc",
+            "artifactId": "ColorSensor-java",
+            "version": "0.0.1-alpha"
+        }
+    ],
+    "cppDependencies": [
+        {
+            "groupId": "com.revrobotics.frc",
+            "artifactId": "ColorSensor-cpp",
+            "version": "0.0.1-alpha",
+            "libName": "ColorSensor",
+            "headerClassifier": "headers",
+            "sharedLibrary": false,
+            "skipInvalidPlatforms": true,
+            "binaryPlatforms": [
+                "windowsx86-64",
+                "windowsx86",
+                "linuxathena",
+                "linuxraspbian"
+            ]
+        }
+    ]
+}
