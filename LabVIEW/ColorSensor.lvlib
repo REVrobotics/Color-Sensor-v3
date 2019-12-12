@@ -9,8 +9,12 @@
 </Property>
 	<Item Name="Private" Type="Folder">
 		<Property Name="NI.LibItem.Scope" Type="Int">2</Property>
+		<Item Name="CalibCoeff.ctl" Type="VI" URL="../TypeDef/CalibCoeff.ctl"/>
 		<Item Name="Check Device ID.vi" Type="VI" URL="../SubVI/Private/Check Device ID.vi"/>
+		<Item Name="GetConfidence.vi" Type="VI" URL="../SubVI/Private/GetConfidence.vi"/>
+		<Item Name="GetNormalizedColors.vi" Type="VI" URL="../SubVI/Private/GetNormalizedColors.vi"/>
 		<Item Name="Initialize.vi" Type="VI" URL="../SubVI/Private/Initialize.vi"/>
+		<Item Name="NormColorValues.ctl" Type="VI" URL="../TypeDef/NormColorValues.ctl"/>
 		<Item Name="Read8.vi" Type="VI" URL="../SubVI/Private/Read8.vi"/>
 		<Item Name="Read20BitRegister.vi" Type="VI" URL="../SubVI/Private/Read20BitRegister.vi"/>
 		<Item Name="Registers.ctl" Type="VI" URL="../SubVI/Private/Registers.ctl"/>
@@ -20,6 +24,7 @@
 	<Item Name="Public" Type="Folder">
 		<Property Name="NI.LibItem.Scope" Type="Int">1</Property>
 		<Item Name="Color Sensor Open.vi" Type="VI" URL="../SubVI/Public/Color Sensor Open.vi"/>
+		<Item Name="Color.ctl" Type="VI" URL="../TypeDef/Color.ctl"/>
 		<Item Name="ColorSensorDevRef.ctl" Type="VI" URL="../TypeDef/ColorSensorDevRef.ctl"/>
 		<Item Name="ColorSensorMeasurementRate.ctl" Type="VI" URL="../TypeDef/ColorSensorMeasurementRate.ctl"/>
 		<Item Name="ColorSensorRefNum Registry Get.vi" Type="VI" URL="../SubVI/Public/ColorSensorRefNum Registry Get.vi"/>
@@ -31,6 +36,8 @@
 		<Item Name="ConfigureProximitySensor.vi" Type="VI" URL="../SubVI/Public/ConfigureProximitySensor.vi"/>
 		<Item Name="GainFactor.ctl" Type="VI" URL="../TypeDef/GainFactor.ctl"/>
 		<Item Name="Get Blue.vi" Type="VI" URL="../SubVI/Public/Get Blue.vi"/>
+		<Item Name="Get Color Example.vi" Type="VI" URL="../SubVI/Public/Get Color Example.vi"/>
+		<Item Name="Get Color.vi" Type="VI" URL="../SubVI/Public/Get Color.vi"/>
 		<Item Name="Get Colors.vi" Type="VI" URL="../SubVI/Public/Get Colors.vi"/>
 		<Item Name="Get Green.vi" Type="VI" URL="../SubVI/Public/Get Green.vi"/>
 		<Item Name="Get IR.vi" Type="VI" URL="../SubVI/Public/Get IR.vi"/>
@@ -40,5 +47,6 @@
 		<Item Name="LEDPulseFreq.ctl" Type="VI" URL="../TypeDef/LEDPulseFreq.ctl"/>
 		<Item Name="ProximitySensorMeasurementRate.ctl" Type="VI" URL="../TypeDef/ProximitySensorMeasurementRate.ctl"/>
 		<Item Name="ProximitySensorResolution.ctl" Type="VI" URL="../TypeDef/ProximitySensorResolution.ctl"/>
+		<Item Name="Set Confidence Threshold.vi" Type="VI" URL="../SubVI/Public/Set Confidence Threshold.vi"/>
 	</Item>
 </Library>
