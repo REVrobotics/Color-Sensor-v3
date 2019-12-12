@@ -29,6 +29,7 @@
 #pragma once
 
 #include "rev/ColorSensorV3LowLevel.h"
+#include "rev/ColorSensorV3Calibration.h"
 #include "frc/ErrorBase.h"
 #include <vector>
 #include <string>
@@ -178,10 +179,10 @@ private:
 
     NormColorValues GetNormColorValues() { return NormColorValues(GetColorValues()); }
 
-    const CalibCoeff blueCoeff{NormColorValues(0.435, 0.415, 0.133, 0.017), Color::blue};
-    const CalibCoeff greenCoeff{NormColorValues(0.241, 0.548, 0.189, 0.022), Color::green};
-    const CalibCoeff redCoeff{NormColorValues(0.117, 0.319, 0.540, 0.024), Color::red};
-    const CalibCoeff yellowCoeff{NormColorValues(0.112, 0.529, 0.349, 0.010), Color::yellow};
+    const CalibCoeff blueCoeff{NormColorValues(kBlueB, kBlueG, kBlueR, kBlueI), Color::blue};
+    const CalibCoeff greenCoeff{NormColorValues(kGreenB, kGreenG, kGreenR, kGreenI), Color::green};
+    const CalibCoeff redCoeff{NormColorValues(kRedB, kRedG, kRedR, kRedI), Color::red};
+    const CalibCoeff yellowCoeff{NormColorValues(kYellowB, kYellowG, kYellowR, kYellowI), Color::yellow};
     const std::vector<CalibCoeff> possibleColors = {blueCoeff, greenCoeff, redCoeff, yellowCoeff};
 
     double m_confidenceLevel;
