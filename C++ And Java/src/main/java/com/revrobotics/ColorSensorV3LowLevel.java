@@ -34,12 +34,14 @@ import java.nio.ByteOrder;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.DriverStation;;
 
-/**
- * REV Robotics Color Sensor V3
- */
-public class ColorSensor {
+
+public class ColorSensorV3LowLevel {
     private static final byte kAddress = 0x52;
     private static final byte kPartID = (byte) 0xC2;
+
+    public ColorSensorV3LowLevel(I2C.Port port) {
+        m_i2c = new I2C(port, kAddress);
+    }
 
     private I2C m_i2c;
 
@@ -156,91 +158,6 @@ public class ColorSensor {
         ColorSensorMeasurementRate(int i) { this.bVal = (byte) i; }
     };
 
-    public static class ColorValues {
-        public int red;
-        public int green;
-        public int blue;
-        public int ir;
-    }
-
-    /**
-     * Constructs a ColorSensor.
-     *
-     * @param port  The I2C port the color sensor is attached to
-     */
-    public ColorSensor(I2C.Port port) {
-        m_i2c = new I2C(port, kAddress);
-
-        if(!checkDeviceID()) {
-            return;
-        }
-
-        initializeDevice();
-    }
-
-    /**
-     * Get the raw proximity value from the sensor ADC (11 bit). This value 
-     * is largest when an object is close to the sensor and smallest when 
-     * far away.
-     * 
-     * @return  Proximity measurement value, ranging from 0 to 2047
-     */
-    public int getProximity() {
-        return read11BitRegister(Register.kProximityData);
-    }
-
-    /**
-     * Get the raw color values from their respective ADCs (20-bit).
-     * 
-     * @return  ColorValues struct containing red, green, blue and IR values
-     */
-    public ColorValues getColorValues() {
-        ColorValues colors = new ColorValues();
-
-        colors.ir = getIR();
-        colors.green = getGreen();
-        colors.blue = getBlue();
-        colors.red = getRed();
-
-        return colors;
-    }
-
-    /**
-     * Get the raw color value from the red ADC (20-bit)
-     * 
-     * @return  Red ADC value
-     */
-    public int getRed() {
-        return read20BitRegister(Register.kDataRed);
-    }
-
-    /**
-     * Get the raw color value from the green ADC (20-bit)
-     * 
-     * @return  Green ADC value
-     */
-    public int getGreen() {
-        return read20BitRegister(Register.kDataGreen);
-    }
-
-    /**
-     * Get the raw color value from the blue ADC (20-bit)
-     * 
-     * @return  Blue ADC value
-     */
-    public int getBlue() {
-        return read20BitRegister(Register.kDataBlue);
-    }
-
-    /**
-     * Get the raw color value from the IR ADC (20-bit)
-     * 
-     * @return  IR ADC value
-     */
-    public int getIR() {
-        return read20BitRegister(Register.kDataInfrared);
-    }
-
     /**
      * Configure the the IR LED used by the proximity sensor. 
      * 
@@ -304,7 +221,7 @@ public class ColorSensor {
         }
     }
 
-    private boolean checkDeviceID() {
+    protected boolean checkDeviceID() {
         ByteBuffer raw = ByteBuffer.allocate(1);
         if(m_i2c.read(Register.kPartID.bVal, 1, raw)) {
             DriverStation.reportError("Could not find REV color sensor", false);
@@ -319,7 +236,7 @@ public class ColorSensor {
         return true;
     }
 
-    private void initializeDevice() {
+    protected void initializeDevice() {
         write8(Register.kMainCtrl, 
             MainControl.kRGBMode.bVal | 
             MainControl.kLightSensorEnable.bVal | 
@@ -332,7 +249,7 @@ public class ColorSensor {
         write8(Register.kProximitySensorPulses, (byte) 32);
     }
 
-    private int read11BitRegister(Register reg) {
+    protected int read11BitRegister(Register reg) {
         ByteBuffer raw = ByteBuffer.allocate(2);
     
         m_i2c.read(reg.bVal, 2, raw);
@@ -341,7 +258,7 @@ public class ColorSensor {
         return raw.getShort() & 0x7FF;
     }
 
-    private int read20BitRegister(Register reg) {
+    protected int read20BitRegister(Register reg) {
         ByteBuffer raw = ByteBuffer.allocate(4);
     
         m_i2c.read(reg.bVal, 3, raw);
@@ -350,7 +267,7 @@ public class ColorSensor {
         return raw.getInt() & 0x03FFFF;
     }
 
-    private void write8(Register reg, int data) {
+    protected void write8(Register reg, int data) {
         m_i2c.write(reg.bVal, data);
     }
 }
