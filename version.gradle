@@ -1,0 +1,40 @@
+//def pubVersion = '0.1.16-SNAPSHOT'
+
+def getPubVersion = { ->
+    def pubVersionMajor = 0
+    def pubVersionMinor = 1
+
+    def versionPropsFile = file('version.properties')
+    if (versionPropsFile.canRead()) {
+        def Properties versionProps = new Properties()
+
+        versionProps.load(new FileInputStream(versionPropsFile))
+        def code = versionProps['VERSION_BUILD'].toInteger() + 1
+        versionProps['VERSION_BUILD'] = code.toString()
+        versionProps.store(versionPropsFile.newWriter(), null)
+        return (String)pubVersionMajor + '.' + pubVersionMinor + '.' + code + '-SNAPSHOT'
+    }
+    else {
+        throw new GradleException("Could not read version.properties!")
+    }
+}
+ext.pubVersion = getPubVersion()
+def pubVersion = ext.pubVersion
+
+def vendordepsdir = rootProject.projectDir.toString() + "/build/vendordeps"
+
+// Add the correct version number to the template JSON file and place it in the vendordeps folder to be zipped
+task updateVendorDeps {
+    mkdir vendordepsdir
+    def newJSON = new File(vendordepsdir + "/REVColorSensorV3.json")
+    def templateJSON = new File(rootProject.projectDir.toString() + "/REVColorSensorV3_template.json")
+
+    newJSON.withWriter { def writer ->
+        templateJSON.eachLine { def line ->
+            def newLine = line.replace("__VERSION_HERE__", '"' + pubVersion + '"')
+            writer.write(newLine + "\n");
+        }
+    }
+}
+
+build.dependsOn updateVendorDeps
