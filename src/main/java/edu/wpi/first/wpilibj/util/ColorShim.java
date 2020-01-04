@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 REV Robotics
+ * Copyright (c) 2020 REV Robotics
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,32 +26,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+package edu.wpi.first.wpilibj.util;
 
-#include <frc/util/Color.h>
-
-namespace rev {
-namespace example {
-
-/**
- * Calibrated blue, green, red values for the blue swatch.
- */
-static constexpr frc::Color kBlueTarget(0.133, 0.415, 0.435);
-
-/**
- * Calibrated blue, green, red values for the green swatch.
- */
-static constexpr frc::Color kGreenTarget(0.189, 0.548, 0.241);
-
-/**
- * Calibrated blue, green, red values for the red swatch.
- */
-static constexpr frc::Color kRedTarget(0.540, 0.319, 0.117);
-
-/**
- * Calibrated blue, green, red values for the yellow swatch.
- */
-static constexpr frc::Color kYellowTarget(0.189, 0.529, 0.112);
-
-} // namespace example
-} // namespace rev
+public class ColorShim extends Color {
+    public ColorShim(double r, double g, double b) {
+        super(r, g, b);
+    }
+};

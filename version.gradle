@@ -1,8 +1,8 @@
 //def pubVersion = '0.1.16-SNAPSHOT'
 
 def getPubVersion = { ->
-    def pubVersionMajor = 0
-    def pubVersionMinor = 1
+    def pubVersionMajor = 1
+    def pubVersionMinor = 0
 
     def versionPropsFile = file('version.properties')
     if (versionPropsFile.canRead()) {

@@ -32,6 +32,9 @@ import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.ColorShim;
+
 public class ColorMatch {
 
     private static double CalculateDistance(Color color1, Color color2) {
@@ -80,7 +83,7 @@ public class ColorMatch {
         double magnitude = color.red + color.blue + color.green;
 
         if (magnitude > 0.0 && m_colorsToMatch.size() > 0) {
-            Color normalized = new Color(color.red / magnitude, color.green / magnitude, color.blue / magnitude);
+            Color normalized = new ColorShim(color.red / magnitude, color.green / magnitude, color.blue / magnitude);
             double minDistance = 1.0;
             int idx = 0;
 
@@ -97,7 +100,7 @@ public class ColorMatch {
         } else {
             confidence = 0.0;
             //return frc::Color::kBlack;
-            return new Color(0, 0, 0);
+            return new ColorShim(0, 0, 0);
         }
     }
 
