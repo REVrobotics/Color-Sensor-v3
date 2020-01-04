@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 REV Robotics
+ * Copyright (c) 2020 REV Robotics
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,7 +30,6 @@ package com.revrobotics;
 
 import java.lang.Math;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.ColorShim;
@@ -47,17 +46,17 @@ public class ColorMatch {
     
     private static final double kDefaultConfidence = 0.95;
     private double m_confidenceLevel;
-    private ArrayList<Color> m_colorsToMatch;
+    private ArrayList<Color> m_colorsToMatch = new ArrayList<Color>();
 
     public ColorMatch() {
         m_confidenceLevel = kDefaultConfidence;
     }
 
-    public void AddColorMatch(Color color) {
+    public void addColorMatch(Color color) {
         m_colorsToMatch.add(color);
     }
 
-    public void SetConfidenceThreshold(double confidence) {
+    public void setConfidenceThreshold(double confidence) {
         if (confidence < 0) { 
             confidence = 0;
         } else if (confidence > 1) {
@@ -66,20 +65,19 @@ public class ColorMatch {
         m_confidenceLevel = confidence;
     }
 
-    public Optional<Color> MatchColor(Color colorToMatch) {
-        return MatchColor(colorToMatch, Double.valueOf(0.0));
-    }
-
-    public Optional<Color> MatchColor(Color colorToMatch, Double confidence) {
-        Color color = MatchClosestColor(colorToMatch, confidence);
-        if ( confidence > m_confidenceLevel ) {
-            return Optional.of(color);
+    public ColorMatchResult matchColor(Color colorToMatch) {
+        ColorMatchResult match = matchClosestColor(colorToMatch);
+        if ( match.confidence > m_confidenceLevel ) {
+            return match;
         }
-        confidence = 0.0;
-        return Optional.empty();
+        return null;
     }
 
-    public Color MatchClosestColor(Color color, Double confidence) {
+    public static Color makeColor(double r, double g, double b) {
+        return new ColorShim(r, g, b);
+    }
+
+    public ColorMatchResult matchClosestColor(Color color) {
         double magnitude = color.red + color.blue + color.green;
 
         if (magnitude > 0.0 && m_colorsToMatch.size() > 0) {
@@ -95,12 +93,11 @@ public class ColorMatch {
                     idx = i;
                 }
             }
-            confidence = 1.0 - minDistance;
-            return m_colorsToMatch.get(idx);
+            ColorMatchResult match = new ColorMatchResult(m_colorsToMatch.get(idx), 1.0 - minDistance);
+            return match;
         } else {
-            confidence = 0.0;
             //return frc::Color::kBlack;
-            return new ColorShim(0, 0, 0);
+            return new ColorMatchResult(Color.kBlack, 0.0);
         }
     }
 

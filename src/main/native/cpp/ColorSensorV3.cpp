@@ -85,8 +85,8 @@ uint32_t ColorSensorV3::GetProximity() {
 frc::Color ColorSensorV3::GetColor() {
     RawColor color = GetRawColor();
     double r = static_cast<double>(color.red);
-    double g = static_cast<double>(color.red);
-    double b = static_cast<double>(color.red);
+    double g = static_cast<double>(color.green);
+    double b = static_cast<double>(color.blue);
     double mag = r + g + b;
     return frc::Color(r / mag, g / mag, b / mag);
 
@@ -104,7 +104,7 @@ ColorSensorV3::RawColor ColorSensorV3::GetRawColor() {
                                         static_cast<uint32_t>(m_simIR.Get()) );
     }
 
-    if(!Read(Register::kDataGreen, 12, raw)) {
+    if(!Read(Register::kDataInfrared, 12, raw)) {
         return ColorSensorV3::RawColor( To20Bit(&raw[9]),
                                         To20Bit(&raw[3]),
                                         To20Bit(&raw[6]),

@@ -12,7 +12,7 @@ def getPubVersion = { ->
         def code = versionProps['VERSION_BUILD'].toInteger() + 1
         versionProps['VERSION_BUILD'] = code.toString()
         versionProps.store(versionPropsFile.newWriter(), null)
-        return (String)pubVersionMajor + '.' + pubVersionMinor + '.' + code + '-SNAPSHOT'
+        return (String)pubVersionMajor + '.' + pubVersionMinor + '.' + (code - 1) //+ '-SNAPSHOT'
     }
     else {
         throw new GradleException("Could not read version.properties!")

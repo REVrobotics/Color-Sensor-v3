@@ -274,7 +274,7 @@ public class ColorSensorV3 {
      * @return  Color enum of the most likely color, including unknown if
      *          the minimum threshold is not met
      */
-    public Color GetColor() {
+    public Color getColor() {
         double r = (double)getRed();
         double g = (double)getGreen();
         double b = (double)getBlue();
