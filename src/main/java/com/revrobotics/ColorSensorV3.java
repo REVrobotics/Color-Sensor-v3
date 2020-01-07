@@ -165,9 +165,9 @@ public class ColorSensorV3 {
 
     enum ProximitySensorResolution {
         kProxRes8bit(0x00),
-        kProxRes9bit(0x01),
-        kProxRes10bit(0x02),
-        kProxRes11bit(0x03);
+        kProxRes9bit(0x08),
+        kProxRes10bit(0x10),
+        kProxRes11bit(0x18);
 
         public final byte bVal;
         ProximitySensorResolution(int i) { this.bVal = (byte) i; }
