@@ -276,15 +276,16 @@ private:
     }
 
     uint32_t To20Bit(uint8_t *val) {
-        uint32_t result = 0;
-        std::memcpy(&result, val, 3);
-        return result & 0x03FFFF;
+        return (static_cast<uint32_t>(val[0]) |
+                (static_cast<uint32_t>(val[1]) << 8) |
+                (static_cast<uint32_t>(val[2]) << 16)) &
+               0x03FFFF;
     }
     
     uint16_t To11Bit(uint8_t *val) {
-        uint16_t result = 0;
-        std::memcpy(&result, val, 2);
-        return result & 0x7FF;
+        return (static_cast<uint16_t>(val[0]) |
+                (static_cast<uint16_t>(val[1]) << 8)) &
+               0x7FF;
     }
 
     uint32_t Read20BitRegister(Register reg);

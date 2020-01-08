@@ -35,8 +35,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.ColorShim;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 /**
  * REV Robotics Color Sensor V3
  */
@@ -366,22 +364,21 @@ public class ColorSensorV3 {
      * @return  bool indicating if the device was reset
      */
     public boolean hasReset() {
-        ByteBuffer raw = ByteBuffer.allocate(1);
+        byte[] raw = new byte[1];
     
         m_i2c.read(Register.kMainStatus.bVal, 1, raw);
     
-        raw.order(ByteOrder.LITTLE_ENDIAN);
-        return (raw.get() & 0x20) != 0;        
+        return (raw[0] & 0x20) != 0;
     }
     
     private boolean checkDeviceID() {
-        ByteBuffer raw = ByteBuffer.allocate(1);
+        byte[] raw = new byte[1];
         if(m_i2c.read(Register.kPartID.bVal, 1, raw)) {
             DriverStation.reportError("Could not find REV color sensor", false);
             return false;
         }
 
-        if(kPartID != raw.get()) {
+        if(kPartID != raw[0]) {
             DriverStation.reportError("Unknown device found with same I2C addres as REV color sensor", false);
             return false;
         }
@@ -403,21 +400,20 @@ public class ColorSensorV3 {
     }
 
     private int read11BitRegister(Register reg) {
-        ByteBuffer raw = ByteBuffer.allocate(2);
+        byte[] raw = new byte[2];
     
         m_i2c.read(reg.bVal, 2, raw);
     
-        raw.order(ByteOrder.LITTLE_ENDIAN);
-        return raw.getShort() & 0x7FF;
+        return (((int)raw[0] & 0xFF) | (((int)raw[1] & 0xFF) << 8)) & 0x7FF;
     }
 
     private int read20BitRegister(Register reg) {
-        ByteBuffer raw = ByteBuffer.allocate(4);
+        byte[] raw = new byte[3];
     
         m_i2c.read(reg.bVal, 3, raw);
 
-        raw.order(ByteOrder.LITTLE_ENDIAN);
-        return raw.getInt() & 0x03FFFF;
+        return (((int)raw[0] & 0xFF) | (((int)raw[1] & 0xFF) << 8) |
+                (((int)raw[2] & 0xFF) << 16)) & 0x03FFFF;
     }
 
     private void write8(Register reg, int data) {
