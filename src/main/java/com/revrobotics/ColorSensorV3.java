@@ -96,7 +96,7 @@ public class ColorSensorV3 {
     }
 
 
-    enum Register {
+    public enum Register {
         kMainCtrl(0x00),
         kProximitySensorLED(0x01),
         kProximitySensorPulses(0x02),
@@ -115,7 +115,7 @@ public class ColorSensorV3 {
         Register(int i) { this.bVal = (byte) i; }
     }
 
-    enum MainControl {
+    public enum MainControl {
         kRGBMode(0x04),  /* If bit is set to 1, color channels are activated */
         kLightSensorEnable(0x02),  /* Enable light sensor */
         kProximitySensorEnable(0x01),  /* Proximity sensor active */
@@ -125,7 +125,7 @@ public class ColorSensorV3 {
         MainControl(int i) { this.bVal = (byte) i; }
     }
 
-    enum GainFactor {
+    public enum GainFactor {
         kGain1x(0x00),
         kGain3x(0x01),
         kGain6x(0x02),
@@ -136,7 +136,7 @@ public class ColorSensorV3 {
         GainFactor(int i) { this.bVal = (byte) i; }
     }
 
-    enum LEDCurrent {
+    public enum LEDCurrent {
         kPulse2mA(0x00),
         kPulse5mA(0x01),
         kPulse10mA(0x02),
@@ -150,7 +150,7 @@ public class ColorSensorV3 {
         LEDCurrent(int i) { this.bVal = (byte) i; }
     }
 
-    enum LEDPulseFrequency {
+    public enum LEDPulseFrequency {
         kFreq60kHz(0x18), /* default value */
         kFreq70kHz(0x40),
         kFreq80kHz(0x28),
@@ -161,7 +161,7 @@ public class ColorSensorV3 {
         LEDPulseFrequency(int i) { this.bVal = (byte) i; }
     }
 
-    enum ProximitySensorResolution {
+    public enum ProximitySensorResolution {
         kProxRes8bit(0x00),
         kProxRes9bit(0x08),
         kProxRes10bit(0x10),
@@ -171,7 +171,7 @@ public class ColorSensorV3 {
         ProximitySensorResolution(int i) { this.bVal = (byte) i; }
     }
 
-    enum ProximitySensorMeasurementRate {
+    public enum ProximitySensorMeasurementRate {
         kProxRate6ms(0x01),
         kProxRate12ms(0x02),
         kProxRate25ms(0x03),
@@ -184,7 +184,7 @@ public class ColorSensorV3 {
         ProximitySensorMeasurementRate(int i) { this.bVal = (byte) i; }
     }
 
-    enum ColorSensorResolution {
+    public enum ColorSensorResolution {
         kColorSensorRes20bit(0x00),
         kColorSensorRes19bit(0x08),
         kColorSensorRes18bit(0x10),
@@ -196,7 +196,7 @@ public class ColorSensorV3 {
         ColorSensorResolution(int i) { this.bVal = (byte) i; }
     }
 
-    enum ColorSensorMeasurementRate {
+    public enum ColorSensorMeasurementRate {
         kColorRate25ms(0),
         kColorRate50ms(1),
         kColorRate100ms(2),
