@@ -43,11 +43,12 @@ namespace rev {
 class ColorMatch {
 public:
     ColorMatch();
+
     /**
-     * Get the normalized color value [0 1]. Works best when within 2 inches and 
-     * perpendicular to surface of interest.
+     * Add color to match object
      * 
-     * @return  Color struct with normalized color values
+     * @param color color to add to matching
+     * 
      */
     void AddColorMatch(const frc::Color& color);
 
@@ -59,35 +60,38 @@ public:
     void SetConfidenceThreshold(double confidence);
 
     /**
-     * GetConfidence uses euclidean distance to compare a given normalized RGB IR 
-     * vector against normalized calibrated coefficients for a swatch color. 
-     * This distance is then normalized and subtracted from 1 to give a 
-     * "confidence", where 1 represents a perfect match and 0 represents no 
-     * similarity.
+     * MatchColor uses euclidean distance to compare a given normalized RGB  
+     * vector against stored values
+     * 
+     * @param colorToMatch color to compare against stored colors
      * 
      * @return  Matched color if detected
      */
     std::optional<frc::Color> MatchColor(const frc::Color& colorToMatch);
 
     /**
-     * GetConfidence uses euclidean distance to compare a given normalized RGB IR 
-     * vector against normalized calibrated coefficients for a swatch color. 
-     * This distance is then normalized and subtracted from 1 to give a 
-     * "confidence", where 1 represents a perfect match and 0 represents no 
-     * similarity.
+     * MatchColor uses euclidean distance to compare a given normalized RGB  
+     * vector against stored values
+     * 
+     * @param colorToMatch color to compare against stored colors
+     * 
+     * @param confidence The confidence value for this match, this is
+     * simply 1 - euclidean distance of the two color vectors
      * 
      * @return  Matched color if detected
      */
     std::optional<frc::Color> MatchColor(const frc::Color& colorToMatch, double& confidence);
 
     /**
-     * GetConfidence uses euclidean distance to compare a given normalized RGB IR 
-     * vector against normalized calibrated coefficients for a swatch color. 
-     * This distance is then normalized and subtracted from 1 to give a 
-     * "confidence", where 1 represents a perfect match and 0 represents no 
-     * similarity.
+     * MatchColor uses euclidean distance to compare a given normalized RGB  
+     * vector against stored values
      * 
-     * @return  Matched color if detected
+     * @param colorToMatch color to compare against stored colors
+     * 
+     * @param confidence The confidence value for this match, this is
+     * simply 1 - euclidean distance of the two color vectors
+     * 
+     * @return  Closest matching color
      */
     frc::Color MatchClosestColor(const frc::Color& colorToMatch, double& confidence);
 

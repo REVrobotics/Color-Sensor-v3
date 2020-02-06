@@ -89,11 +89,11 @@ public:
 
     enum class ColorResolution {
         k20bit = 0x00,
-        k19bit = 0x08,
-        k18bit = 0x10,
-        k17bit = 0x18,
-        k16bit = 0x20,
-        k13bit = 0x28,
+        k19bit = 0x10,
+        k18bit = 0x20,
+        k17bit = 0x30,
+        k16bit = 0x40,
+        k13bit = 0x50,
     };
 
     enum class ColorMeasurementRate {
@@ -144,9 +144,12 @@ public:
     RawColor GetRawColor();
 
     /**
-     * Get the raw color value from the sensor.
+     * Get the color converted to CIE XYZ color space using factory
+     * calibrated constants. 
      * 
-     * @return  Color class with normalized values
+     * https://en.wikipedia.org/wiki/CIE_1931_color_space
+     * 
+     * @return  CIEColor value from sensor
      */
     rev::CIEColor GetCIEColor();
 

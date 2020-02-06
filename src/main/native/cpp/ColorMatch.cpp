@@ -73,19 +73,18 @@ frc::Color ColorMatch::MatchClosestColor(const frc::Color& color, double& confid
     double magnitude = color.red + color.blue + color.green;
 
     if (magnitude > 0.0 && m_colorsToMatch.size() > 0) {
-        frc::Color normalized(color.red / magnitude, color.green / magnitude, color.blue / magnitude);
         double minDistance = 1.0;
         int idx = 0;
 
         for (int i=0; i < static_cast<int>(m_colorsToMatch.size()); i++) {
-            double targetDistance = CalculateDistance(m_colorsToMatch[i], normalized);
+            double targetDistance = CalculateDistance(m_colorsToMatch[i], color);
 
             if (targetDistance < minDistance) {
                 minDistance = targetDistance;
                 idx = i;
             }
         }
-        confidence = 1.0 - minDistance;
+        confidence = 1.0 - (minDistance / magnitude);
         return m_colorsToMatch[idx];
     } else {
         confidence = 0.0;

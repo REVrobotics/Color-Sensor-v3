@@ -114,7 +114,6 @@ ColorSensorV3::RawColor ColorSensorV3::GetRawColor() {
     return ColorSensorV3::RawColor(0, 0, 0, 0);
 }
 
-
 rev::CIEColor ColorSensorV3::GetCIEColor() {
     RawColor raw = GetRawColor();
     return rev::CIEColor( Cmatrix[0] * raw.red + Cmatrix[1] * raw.green + Cmatrix[2] * raw.blue,

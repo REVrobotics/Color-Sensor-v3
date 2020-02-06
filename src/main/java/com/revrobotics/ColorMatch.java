@@ -32,7 +32,6 @@ import java.lang.Math;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.ColorShim;
 
 public class ColorMatch {
 
@@ -52,10 +51,21 @@ public class ColorMatch {
         m_confidenceLevel = kDefaultConfidence;
     }
 
+    /**
+     * Add color to match object
+     * 
+     * @param color color to add to matching
+     * 
+     */
     public void addColorMatch(Color color) {
         m_colorsToMatch.add(color);
     }
 
+    /**
+     * Set the confidence interval for determining color. Defaults to 0.95
+     * 
+     * @param confidence    A value between 0 and 1
+     */
     public void setConfidenceThreshold(double confidence) {
         if (confidence < 0) { 
             confidence = 0;
@@ -65,6 +75,15 @@ public class ColorMatch {
         m_confidenceLevel = confidence;
     }
 
+    /**
+     * MatchColor uses euclidean distance to compare a given normalized RGB  
+     * vector against stored values
+     * 
+     * @param colorToMatch color to compare against stored colors
+     * 
+     * @return  Matched color if detected, returns null if no color detected 
+     * confidence level
+     */
     public ColorMatchResult matchColor(Color colorToMatch) {
         ColorMatchResult match = matchClosestColor(colorToMatch);
         if ( match.confidence > m_confidenceLevel ) {
@@ -73,27 +92,34 @@ public class ColorMatch {
         return null;
     }
 
+    @Deprecated(forRemoval = true, since = "1.1.0")
     public static Color makeColor(double r, double g, double b) {
-        return new ColorShim(r, g, b);
+        return new Color(r, g, b);
     }
 
+    /**
+     * MatchColor uses euclidean distance to compare a given normalized RGB  
+     * vector against stored values
+     * 
+     * @param color color to compare against stored colors
+     * 
+     * @return  Closest color to match
+     */
     public ColorMatchResult matchClosestColor(Color color) {
         double magnitude = color.red + color.blue + color.green;
-
-        if (magnitude > 0.0 && m_colorsToMatch.size() > 0) {
-            Color normalized = new ColorShim(color.red / magnitude, color.green / magnitude, color.blue / magnitude);
+        if (magnitude > 0 && m_colorsToMatch.size() > 0) {
             double minDistance = 1.0;
             int idx = 0;
 
             for (int i=0; i < m_colorsToMatch.size(); i++) {
-                double targetDistance = CalculateDistance(m_colorsToMatch.get(i), normalized);
+                double targetDistance = CalculateDistance(m_colorsToMatch.get(i), color);
 
                 if (targetDistance < minDistance) {
                     minDistance = targetDistance;
                     idx = i;
                 }
             }
-            ColorMatchResult match = new ColorMatchResult(m_colorsToMatch.get(idx), 1.0 - minDistance);
+            ColorMatchResult match = new ColorMatchResult(m_colorsToMatch.get(idx), 1.0 - (minDistance / magnitude) );
             return match;
         } else {
             //return frc::Color::kBlack;

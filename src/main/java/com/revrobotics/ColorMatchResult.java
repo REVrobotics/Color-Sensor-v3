@@ -34,6 +34,19 @@ public class ColorMatchResult {
     public final Color color;
     public final double confidence;
 
+    /**
+     * Construct a color match result object. This object stores 
+     * color which is a copy of the stored value registered to the 
+     * ColorMatch object, and a confidence. 
+     * 
+     * The condifence is simply 1 - euclidian distance
+     * 
+     * @param color copy of matched color from ColorMatch object
+     * 
+     * @param confidence confidence number for the measurement. This is
+     * the 1 - euclidean distance of the two color vectors
+     * 
+     */
     public ColorMatchResult(Color color, double confidence) {
         this.color = color;
         this.confidence = confidence;

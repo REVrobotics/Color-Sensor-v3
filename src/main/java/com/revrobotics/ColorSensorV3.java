@@ -33,7 +33,6 @@ import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.ColorShim;
 
 /**
  * REV Robotics Color Sensor V3
@@ -186,11 +185,11 @@ public class ColorSensorV3 {
 
     public enum ColorSensorResolution {
         kColorSensorRes20bit(0x00),
-        kColorSensorRes19bit(0x08),
-        kColorSensorRes18bit(0x10),
-        kColorSensorRes17bit(0x18),
-        kColorSensorRes16bit(0x20),
-        kColorSensorRes13bit(0x28);
+        kColorSensorRes19bit(0x10),
+        kColorSensorRes18bit(0x20),
+        kColorSensorRes17bit(0x30),
+        kColorSensorRes16bit(0x40),
+        kColorSensorRes13bit(0x50);
 
         public final byte bVal;
         ColorSensorResolution(int i) { this.bVal = (byte) i; }
@@ -277,7 +276,7 @@ public class ColorSensorV3 {
         double g = (double)getGreen();
         double b = (double)getBlue();
         double mag = r + g + b;
-        return new ColorShim(r / mag, g / mag, b / mag);
+        return new Color(r / mag, g / mag, b / mag);
     }
 
     /**
@@ -349,6 +348,29 @@ public class ColorSensorV3 {
             return (int)m_simIR.get();
         }
         return read20BitRegister(Register.kDataInfrared);
+    }
+
+    // This is a transformation matrix given by the chip
+    // manufacturer to transform the raw RGB to CIE XYZ
+    private final double Cmatrix[] = {
+        0.048112847, 0.289453437, -0.084950826,
+       -0.030754752, 0.339680186, -0.071569905,
+       -0.093947499, 0.072838494,  0.34024948
+    };
+
+    /**
+     * Get the color converted to CIE XYZ color space using factory
+     * calibrated constants. 
+     * 
+     * https://en.wikipedia.org/wiki/CIE_1931_color_space
+     * 
+     * @return  CIEColor value from sensor
+     */
+    public CIEColor getCIEColor() {
+        RawColor raw = getRawColor();
+        return new CIEColor( Cmatrix[0] * raw.red + Cmatrix[1] * raw.green + Cmatrix[2] * raw.blue,
+                             Cmatrix[3] * raw.red + Cmatrix[4] * raw.green + Cmatrix[5] * raw.blue,
+                             Cmatrix[6] * raw.red + Cmatrix[7] * raw.green + Cmatrix[8] * raw.blue );
     }
 
     /**

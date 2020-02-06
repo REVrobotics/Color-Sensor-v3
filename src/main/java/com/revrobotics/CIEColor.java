@@ -26,36 +26,78 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+package com.revrobotics;
 
-#include <frc/util/Color.h>
+import java.lang.Math; 
+import edu.wpi.first.wpilibj.util.Color;
 
-namespace rev {
+public class CIEColor {
+    private double X;
+    private double Y;
+    private double Z;
+    private double magnitude;
 
-class CIEColor {
-public:    
-    CIEColor(double X, double Y, double Z) : X(X), Y(Y), Z(Z), mag(X + Y + Z) {}
+    //private final double IlluminantD65[] = {
+    //    95.0489, 100.0, 108.8840
+    //};
+
+    private final double XYZtoRGB[]  = {
+        3.2404542, -1.5371385, -0.4985314,
+       -0.9692660,  1.8760108,  0.0415560,
+        0.0556434, -0.2040259,  1.0572252
+    };
+
+    private static double CIERGB_f(double val) {
+        return (val > 0.0031308) ? (1.055 * Math.pow(val, 1 / 2.4) - 0.055) : (12.92 * val);
+    }
+
+    private static double clamp(double x, double min, double max) {
+        if (x > max) return max;
+        if (x < min) return min;
+        return x;
+    }
+
+    private Color ToRGB() {
+        double _X = clamp(X / 100, 0.0, 1.0);
+        double _Y = clamp(Y / 100, 0.0, 1.0);
+        double _Z = clamp(Z / 100, 0.0, 1.0);
+        double r = _X * XYZtoRGB[0] + _Y * XYZtoRGB[1] + _Z * XYZtoRGB[2];
+        double g = _X * XYZtoRGB[3] + _Y * XYZtoRGB[4] + _Z * XYZtoRGB[5];
+        double b = _X * XYZtoRGB[6] + _Y * XYZtoRGB[7] + _Z * XYZtoRGB[8];
+    
+        r = CIERGB_f(r);
+        g = CIERGB_f(g);
+        b = CIERGB_f(b);
+    
+        return new Color(r,g,b);
+    }
 
     /**
      * Get the X component of the color
      * 
      * @return  CIE X
      */
-    double GetX() { return X; }
-    
+    public double getX() {
+        return X;
+    }
+
     /**
      * Get the Y component of the color
      * 
      * @return  CIE Y
      */
-    double GetY() { return Y; }
+    public double getY() {
+        return Y;
+    }
 
     /**
      * Get the Z component of the color
      * 
      * @return  CIE Z
      */
-    double GetZ() { return Z; }
+    public double getZ() {
+        return Z;
+    }
 
     /**
      * Get the x calculated coordinate
@@ -65,7 +107,9 @@ public:
      * 
      * @return  CIE Yx
      */
-    double GetYx() { return X / mag; }
+    public double getYx() {
+        return X / magnitude;
+    }
 
     /**
      * Get the y calculated coordinate
@@ -75,17 +119,16 @@ public:
      * 
      * @return  CIE Yy
      */
-    double GetYy() { return Y / mag; }
+    public double getYy() {
+        return Y / magnitude;
+    }
 
-private:
-    // This is private until we get it working correctly
-    frc::Color ToRGB();
-    static const double IlluminantD65[3];
-    static const double XYZtoRGB[9];
-    double X;
-    double Y;
-    double Z;
-    double mag;
-};
+    public CIEColor(double x, double y, double z) {
+        this.X = x;
+        this.Y = y;
+        this.Z = z;
+        this.magnitude = x + y + z;
+    }
+}
 
-} // namespace rev
+
