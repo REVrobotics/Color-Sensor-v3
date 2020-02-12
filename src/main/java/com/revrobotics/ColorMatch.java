@@ -32,6 +32,7 @@ import java.lang.Math;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.ColorShim;
 
 public class ColorMatch {
 
@@ -92,9 +93,20 @@ public class ColorMatch {
         return null;
     }
 
-    @Deprecated(forRemoval = true, since = "1.1.0")
+    /**
+     * Create an frc.Color object from r g b. This is necessary for WPILib 
+     * versions older than 2020.2.2 and will be deprecated in 2021.
+     * 
+     * @param r Red value
+     * 
+     * @param g Green value
+     * 
+     * @param b Blue value
+     * 
+     * @return  frc.Color object
+     */
     public static Color makeColor(double r, double g, double b) {
-        return new Color(r, g, b);
+        return new ColorShim(r, g, b);
     }
 
     /**

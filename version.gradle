@@ -2,7 +2,7 @@
 
 def getPubVersion = { ->
     def pubVersionMajor = 1
-    def pubVersionMinor = 1
+    def pubVersionMinor = 2
 
     def versionPropsFile = file('version.properties')
     if (versionPropsFile.canRead()) {

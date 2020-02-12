@@ -30,6 +30,7 @@ package com.revrobotics;
 
 import java.lang.Math; 
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.ColorShim;
 
 public class CIEColor {
     private double X;
@@ -69,7 +70,7 @@ public class CIEColor {
         g = CIERGB_f(g);
         b = CIERGB_f(b);
     
-        return new Color(r,g,b);
+        return new ColorShim(r,g,b);
     }
 
     /**
